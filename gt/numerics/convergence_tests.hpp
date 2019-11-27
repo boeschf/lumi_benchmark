@@ -13,10 +13,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "HORIZONTAL DIFFUSION: Spatial Convergence" << std::endl;
     analytical::horizontal_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), hdiff_stepper(exact.diffusion_coeff),
-                 1e-4, 1e-5, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, hdiff_stepper(exact.diffusion_coeff), 1e-4, 1e-5, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 128));
   }
@@ -24,10 +23,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "HORIZONTAL DIFFUSION: Space-Time Convergence" << std::endl;
     analytical::horizontal_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), hdiff_stepper(exact.diffusion_coeff),
-                 1e-2, 1e-3 / resolution, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, hdiff_stepper(exact.diffusion_coeff), 1e-2, 1e-3 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
@@ -36,10 +34,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "VERTICAL DIFFUSION: Spatial Convergence" << std::endl;
     analytical::vertical_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), vdiff_stepper(exact.diffusion_coeff),
-                 1e-4, 1e-5, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, vdiff_stepper(exact.diffusion_coeff), 1e-4, 1e-5, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 128));
   }
@@ -47,10 +44,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "VERTICAL DIFFUSION: Space-Time Convergence" << std::endl;
     analytical::vertical_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), vdiff_stepper(exact.diffusion_coeff),
-                 1e-2, 1e-3 / resolution, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, vdiff_stepper(exact.diffusion_coeff), 1e-2, 1e-3 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
@@ -59,10 +55,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "FULL DIFFUSION: Spatial Convergence" << std::endl;
     analytical::full_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), diff_stepper(exact.diffusion_coeff),
-                 1e-4, 1e-5, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, diff_stepper(exact.diffusion_coeff), 1e-4, 1e-5, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 128));
   }
@@ -70,10 +65,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "FULL DIFFUSION: Space-Time Convergence" << std::endl;
     analytical::full_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), diff_stepper(exact.diffusion_coeff),
-                 1e-2, 1e-3 / resolution, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, diff_stepper(exact.diffusion_coeff), 1e-2, 1e-3 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
@@ -82,9 +76,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "HORIZONTAL ADVECTION: Spatial Convergence" << std::endl;
     analytical::horizontal_advection exact;
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), hadv_stepper(), 1e-5, 1e-6, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, hadv_stepper(), 1e-5, 1e-6, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 128));
   }
@@ -92,10 +86,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "HORIZONTAL ADVECTION: Space-Time Convergence" << std::endl;
     analytical::horizontal_advection exact;
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), hadv_stepper(), 1e-4, 1e-5 / resolution,
-                 exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, hadv_stepper(), 1e-4, 1e-5 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
@@ -104,9 +97,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "VERTICAL ADVECTION: Spatial Convergence" << std::endl;
     analytical::vertical_advection exact;
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), vadv_stepper(), 1e-5, 1e-6, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, vadv_stepper(), 1e-5, 1e-6, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 128));
   }
@@ -114,10 +107,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "VERTICAL ADVECTION: Space-Time Convergence" << std::endl;
     analytical::vertical_advection exact;
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), vadv_stepper(), 1e-4, 1e-5 / resolution,
-                 exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, vadv_stepper(), 1e-4, 1e-5 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
@@ -126,9 +118,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "RUNGE-KUTTA ADVECTION: Spatial Convergence" << std::endl;
     analytical::full_advection exact;
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), rkadv_stepper(), 1e-5, 1e-6, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, rkadv_stepper(), 1e-5, 1e-6, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 128));
   }
@@ -136,10 +128,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "RUNGE-KUTTA ADVECTION: Space-Time Convergence" << std::endl;
     analytical::full_advection exact;
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), rkadv_stepper(), 1e-4, 1e-5 / resolution,
-                 exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, rkadv_stepper(), 1e-4, 1e-5 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
@@ -148,10 +139,9 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "ADVECTION-DIFFUSION: Spatial Convergence" << std::endl;
     analytical::advection_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), full_stepper(exact.diffusion_coeff),
-                 1e-5, 1e-6, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, full_stepper(exact.diffusion_coeff), 1e-5, 1e-6, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
 
     print_order_verification_result(order_verification(error_f, 8, 128));
@@ -160,11 +150,11 @@ template <class CommWorld> void run_convergence_tests(CommWorld &&comm_world) {
     std::cout << "ADVECTION-DIFFUSION: Space-Time Convergence" << std::endl;
     analytical::advection_diffusion exact{0.05};
     auto error_f = [&comm_world, exact](std::size_t resolution) {
-      auto comm_grid =
-          communication::grid(comm_world, {resolution, resolution, resolution});
-      return run(std::move(comm_grid), full_stepper(exact.diffusion_coeff),
-                 1e-4, 1e-5 / resolution, exact);
+      auto comm_grid = communication::grid(comm_world, {resolution, resolution, resolution});
+      const auto error = run(comm_grid, full_stepper(exact.diffusion_coeff), 1e-4, 1e-5 / resolution, exact);
+      return std::sqrt(communication::global_sum(comm_grid, error));
     };
     print_order_verification_result(order_verification(error_f, 8, 64));
   }
 }
+

@@ -82,5 +82,5 @@ double run(CommGrid &&comm_grid, Stepper &&stepper, real_t tmax, real_t dt,
   }
   error *= delta.x * delta.y * delta.z;
 
-  return std::sqrt(communication::global_sum(comm_grid, error));
+  return error;
 }
