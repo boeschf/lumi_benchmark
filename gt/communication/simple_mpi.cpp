@@ -19,11 +19,19 @@ world::world(int &argc, char **&argv) {
     std::cout.setstate(std::ios_base::failbit);
 }
 
-world::~world() { MPI_Finalize(); }
+world::world(world &&other) : active(std::exchange(other.active, false)) {}
+
+world &world::operator=(world &&other) {
+  active = std::exchange(other.active, false);
+}
+
+world::~world() {
+  if (active)
+    MPI_Finalize();
+}
 
 grid::grid(vec<std::size_t, 3> const &global_resolution)
-    : global_resolution{global_resolution.x, global_resolution.y} 
-{
+    : global_resolution{global_resolution.x, global_resolution.y} {
   int size, rank;
   MPI_Comm_size(MPI_COMM_WORLD, &size);
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -50,14 +58,32 @@ grid::grid(vec<std::size_t, 3> const &global_resolution)
     throw std::runtime_error("local resolution is smaller than halo size!");
 }
 
-grid::~grid() { MPI_Comm_free(&comm_cart); }
+grid::grid(grid &&other)
+    : resolution(std::move(other.resolution)),
+      global_resolution(std::move(other.global_resolution)),
+      offset(std::move(other.offset)),
+      comm_cart(std::exchange(other.comm_cart, MPI_COMM_NULL)) {}
+
+grid &grid::operator=(grid &&other) {
+  resolution = std::move(other.resolution);
+  global_resolution = std::move(other.global_resolution);
+  offset = std::move(other.offset);
+  comm_cart = std::exchange(other.comm_cart, MPI_COMM_NULL);
+  return *this;
+}
+
+grid::~grid() {
+  if (comm_cart != MPI_COMM_NULL)
+    MPI_Comm_free(&comm_cart);
+}
 
 template <class T> struct halo_info { T lower, upper; };
 
 struct halo_exchange_f {
   halo_exchange_f(MPI_Comm comm_cart, storage_t::storage_info_t const &sinfo)
-      : comm_cart(comm_cart), send_offsets{{0, 0}, {0, 0}}, recv_offsets{{0, 0}, {0, 0}} 
-  {
+      : comm_cart(comm_cart), send_offsets{{0, 0}, {0, 0}}, recv_offsets{
+                                                                {0, 0},
+                                                                {0, 0}} {
     auto strides = sinfo.strides();
     auto sizes = sinfo.total_lengths();
 
@@ -167,4 +193,3 @@ double comm_global_max(grid const &grid, double t) {
 } // namespace simple_mpi
 
 } // namespace communication
-
