@@ -16,6 +16,12 @@ struct world {
   world &operator=(world &&);
   ~world();
 
+  double global_max(double t) const {
+    double max;
+    MPI_Allreduce(&t, &max, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    return max;
+  }
+
   bool active = true;
 };
 
@@ -38,8 +44,6 @@ inline grid comm_grid(world &, vec<std::size_t, 3> const &global_resolution) {
 
 std::function<void(storage_t &)>
 comm_halo_exchanger(grid const &grid, storage_t::storage_info_t const &sinfo);
-
-double comm_global_max(grid const &grid, double t);
 
 } // namespace simple_mpi
 

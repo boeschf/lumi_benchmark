@@ -27,8 +27,10 @@ int main(int argc, char **argv) {
 
   auto result =
       run(std::move(comm_grid), full_stepper(diffusion_coeff), 1, 1e-3, exact);
-  std::cout << "error: " << result.error << std::endl
-            << "time: " << result.time << "s" << std::endl;
+  const auto error = comm_world.global_max(result.error);
+  const auto time  = comm_world.global_max(result.time);
+  std::cout << "error: " << error << std::endl
+            << "time: " << time << "s" << std::endl;
 
   return 0;
 }

@@ -6,7 +6,11 @@ namespace communication {
 
 namespace single_node {
 
-struct world {};
+struct world {
+  double global_max(double t) const {
+      return t;
+  }
+};
 
 struct grid {
   vec<std::size_t, 3> resolution;
@@ -25,7 +29,6 @@ constexpr vec<std::size_t, 2> comm_offset(grid) { return {0, 0}; }
 std::function<void(storage_t &)>
 comm_halo_exchanger(grid const &grid, storage_t::storage_info_t const &sinfo);
 
-template <class T> constexpr T comm_global_max(grid, T const &t) { return t; }
 } // namespace single_node
 
 } // namespace communication
